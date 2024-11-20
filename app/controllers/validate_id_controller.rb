@@ -25,9 +25,17 @@ class ValidateIdController < ApplicationController
 
   def validate
     id_number = params[:id_number]
+    client = authenticate_client
     # If the ID does not exist, make an API request
     api_key = ENV['VERIFYID_API_KEY']
-    result = ValidateIdService.validate_id(api_key, id_number)
+    result = ValidateIdService.new(client, params[:id_number]).execute
+
+    render json: result, status: :ok
+      rescue InsufficientCreditsError => e
+        render json: {
+          status: 'error',
+          message: e.message
+        }, status: :payment_required
 
     # Save the API response data to the database
     verification_data = result['Verification']

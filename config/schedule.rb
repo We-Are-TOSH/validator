@@ -1,24 +1,11 @@
-# Use this file to easily define all of your cron jobs.
-#
-# It's helpful, but not entirely necessary to understand cron before proceeding.
-# http://en.wikipedia.org/wiki/Cron
-
-# Example:
-#
-# set :output, "/path/to/my/cron_log.log"
-#
-# every 2.hours do
-#   command "/usr/bin/some_great_command"
-#   runner "MyModel.some_method"
-#   rake "some:great:rake:task"
-# end
-#
-# every 4.days do
-#   runner "AnotherModel.prune_old_records"
-# end
-
 every 8.hours do
   rake "check_credits"
 end
 
-# Learn more: http://github.com/javan/whenever
+every 1.day, at: '8:00 am' do
+  runner "BillingNotificationService.send_usage_alerts"
+end
+
+every 1.month, at: 'start of the month at 12:01am' do
+  runner "Client.find_each { |client| BillingNotificationJob.perform_later(client.id) }"
+end
